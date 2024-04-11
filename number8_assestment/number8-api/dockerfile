@@ -1,0 +1,35 @@
+# Use an official Node.js runtime as the base image
+FROM node:18.13.0
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json to the container
+COPY package*.json ./
+
+# Install Node.js dependencies including development dependencies
+RUN npm install
+
+# Install TypeScript globally for compiling TS files
+RUN npm install -g typescript
+
+# Install nodemon globally for running the development server
+RUN npm install -g nodemon
+
+# Install netcat, needed for the entrypoint script
+RUN apt-get update && apt-get install -y netcat
+
+# Copy the rest of the application code to the container
+COPY . .
+
+# Expose the port that the backend app will run on
+EXPOSE 3000
+
+# Copy the entrypoint script
+COPY ./docker/entrypoint.sh /app/docker/entrypoint.sh
+
+# Set the entrypoint script using 'sh'
+ENTRYPOINT ["sh", "/app/docker/entrypoint.sh"]
+
+# Define the default command to run when starting the container
+CMD ["npm", "run", "dev"]

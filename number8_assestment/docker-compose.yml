@@ -1,0 +1,43 @@
+version: '3'
+services:
+  number8-web:
+    build:
+      context: ./number8-web
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    depends_on:
+      - number8-api
+    volumes:
+      - ./number8-web:/app
+      - /app/node_modules 
+
+  number8-api:
+    build: 
+      context: ./number8-api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PSQL_DB_USER=${PSQL_DB_USER}
+      - PSQL_DB_PASSWORD=${PSQL_DB_PASSWORD}
+      - PSQL_DB_DATABASE=${PSQL_DB_DATABASE}
+      - PSQL_DB_HOST=${PSQL_DB_HOST}
+      - PSQL_DB_PORT=${PSQL_DB_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - number8-db
+    volumes:
+      - ./number8-api:/app
+
+  number8-db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${PSQL_DB_USER}
+      - POSTGRES_PASSWORD=${PSQL_DB_PASSWORD}
+      - POSTGRES_DB=${PSQL_DB_DATABASE}
